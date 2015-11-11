@@ -9,7 +9,7 @@ env.pwd=local("pwd", True)
 env.repo="https://peroperopero@bitbucket.org/peroperopero/wstetris.git"
 
 @task
-def restart():
+def deploy():
     run("rm -rf wstetris")
     run("git clone " + env.repo)
     sudo("cp -rf ./wstetris/client/dist/* /usr/share/nginx/html")

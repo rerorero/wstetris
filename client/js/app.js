@@ -14,7 +14,8 @@ const logger = new Logger();
 
 class ServerConn {
 	constructor(onRecv, onClose) {
-    this.uri = "ws://127.0.0.1:2794/";
+    //this.uri = "ws://127.0.0.1:2794/";
+    this.uri = "ws://ec2-52-192-144-227.ap-northeast-1.compute.amazonaws.com/ws/";
 		this.onRecv = onRecv;
 		this.onClose = onClose;
 		this.ws = null;

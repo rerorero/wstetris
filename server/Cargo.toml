@@ -1,0 +1,9 @@
+[package]
+name = "wstetris"
+version = "0.1.0"
+authors = ["rerorero <nato9598@hotmail.co.jp>"]
+
+[dependencies]
+websocket = "~0.12.2"
+rand = "0.3"
+rustc-serialize = "0.3"

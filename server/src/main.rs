@@ -20,7 +20,7 @@ use user_rx::*;
 use app::*;
 
 fn main() {
-	let server = Server::bind("127.0.0.1:2794").unwrap();
+	let server = Server::bind("127.0.0.1:8001").unwrap();
     println!("WS server started.");
 
 	let app = Arc::new(Mutex::new(App::new()));

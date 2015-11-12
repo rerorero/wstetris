@@ -44,10 +44,10 @@ impl SessionMgr {
 		return s;
 	}
 
-    pub fn remove_session(&self, user: &User) {
+    pub fn remove_session(&self, userId: i32) {
 		let mut sess = self.sessions.borrow_mut();
         sess.iter()
-            .position(|s| s.lock().unwrap().user.id == user.id)
+            .position(|s| s.lock().unwrap().user.id == userId)
             .map(|i| sess.remove(i));
     }
 
@@ -74,8 +74,15 @@ impl SessionMgr {
 
     pub fn broadcast(&self, cmd: &ServerCommand) {
         let sess = self.sessions.borrow();
+        let mut failed = Vec::new();
         for s in sess.iter() {
-			s.lock().unwrap().send_to(cmd);;
+            let u = s.lock().unwrap();
+			if u.send_to(cmd) == false {
+                failed.push(u.user.id);
+            }
+        }
+        for id in failed {
+            self.remove_session(id);
         }
     }
 
@@ -130,7 +137,7 @@ impl App {
                         match *rx {
                             UserRx::Closed => {
                                 game.remove_player(user.id);
-                                mgr.lock().unwrap().remove_session(user);
+                                mgr.lock().unwrap().remove_session(user.id);
                             },
                             UserRx::KeyPress{ key: ref key } => {
                                 game.on_key_press(user.id, *key);

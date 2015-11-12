@@ -14,7 +14,7 @@ const logger = new Logger();
 
 class ServerConn {
 	constructor(onRecv, onClose) {
-    //this.uri = "ws://127.0.0.1:2794/";
+    // this.uri = "ws://127.0.0.1:2794/";
     this.uri = "ws://ec2-52-192-144-227.ap-northeast-1.compute.amazonaws.com/ws/";
 		this.onRecv = onRecv;
 		this.onClose = onClose;
@@ -104,7 +104,7 @@ const B_EMPTY = 0;
 const B_COLOR_MIN = 10;
 const B_COLOR_MAX = 16;
 const COLORS = [
-	"#5C4B51", "#8CBEB2", "#F2EBBF", "#F3B562", "#F06060", "#2E97D8", "#294666"
+	"#008B8B", "#ff7f50", "#c71588", "#4169e1"
 ]
 const B_PILEDCOLOR_MIN = 20;
 const B_PILEDCOLOR_MAX = 26;

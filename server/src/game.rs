@@ -32,8 +32,8 @@ pub struct Game {
 	score: u8
 }
 
-const FALL_VELOCITY_INIT: u32 = 50;
-const UP_INT: u32 = 2000;
+const FALL_VELOCITY_INIT: u32 = 40;
+const UP_INT: u32 = 200;
 
 impl Game {
 	pub fn new() -> Game {
@@ -117,6 +117,7 @@ impl Game {
 		if (self.tick % UP_INT) == 0 {
 			// だんだん早く
 			if self.fall_velocity > 5 {
+				println!("spped up!!");
 				self.fall_velocity -= 1;
 			}
 		}

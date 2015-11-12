@@ -45,10 +45,13 @@ impl UserSession {
 		return org;
 	}
 
-	pub fn send_to(&self, cmd: &ServerCommand) {
+	pub fn send_to(&self, cmd: &ServerCommand) -> bool {
         match self.ch.send(ServerCommand::to_blob(&cmd)) {
-            Ok(v) => v,
-            Err(e) => println!("send_to ch failed!! {}", e)
+            Ok(v) => true,
+            Err(e) => {
+				println!("send_to ch failed!! {}", e);
+				false
+			}
         }
 	}
 }

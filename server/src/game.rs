@@ -55,6 +55,7 @@ impl Game {
 		self.score = 0;
 		self.fall_velocity = FALL_VELOCITY_INIT;
 		self.board.empty();
+		self.players.clear();
 	}
 
 	pub fn get_board_state(&self, session_num: usize) -> ServerCommand {
@@ -80,9 +81,11 @@ impl Game {
 	}
 
 	pub fn on_key_press(&mut self, user_id: i32, key: Key) {
-		self.players.iter()
-			.position(|u| u.id == user_id)
-			.map(|i| self.players[i].key = Some(key));
+		if self.on_playing() {
+			self.players.iter()
+				.position(|u| u.id == user_id)
+				.map(|i| self.players[i].key = Some(key));
+		}
 	}
 
 	pub fn attempt_to_add_player(&mut self, id: i32) -> bool {

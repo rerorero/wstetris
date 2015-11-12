@@ -34,7 +34,7 @@ impl UserSession {
 
 	pub fn on_user_rx(&mut self, cmd: UserRx) {
 		match self.rx {
-			Some(_) => println!("already queued."),
+			Some(_) => {}, //println!("already queued."),
 			None => self.rx = Some(cmd)
 		};
 	}

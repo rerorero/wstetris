@@ -21,7 +21,7 @@ impl Board {
 		self.states = [[STATE_EMPTY; ROWS]; COLS];
 	}
 
-	pub fn to_server_cmd(&self, minos: &Vec<&Mino>) -> ServerCommand {
+	pub fn to_server_cmd(&self, minos: &Vec<&Mino>) -> Vec<Vec<u8>> {
 		let mut vector = Vec::new();
 		for i in 0..COLS {
 			vector.push(self.states[i].to_vec());
@@ -32,7 +32,7 @@ impl Board {
 				vector[pos.x as usize][pos.y as usize] = mino.color;
 			}
 		}
-		return ServerCommand::Board{ state: vector };
+		return vector;
 	}
 
 	pub fn initial_mino_pos(num: i32, max_player: usize) -> Pos {

@@ -33,7 +33,7 @@ class ServerConn {
 	    };
 
 	    this.ws.onmessage = (e) => {
-	      logger.i("Received message." + e.data);
+	      //logger.i("Received message." + e.data);
 				if (e.data instanceof ArrayBuffer) {
 					this.onRecv(e.data);
 				} else {
@@ -194,13 +194,13 @@ function genKeyPressData(key) {
 /////////////////////////////////////////////////////////////
 const KEYS = {
 	122: 'l',  // h is left
-	 99: 'r',  // c is rotate
+	99: 'r',  // c is rotate
 	120: 'd',  // x is down
 	115: 't'   // s is rotate(turn)
 };
 
 class Controller {
-	constructor(board) {
+	constructor(board, l, r, t, d) {
 		this.conn = new ServerConn(
 			(d) => this.onServerCommand(d),
 			(e) => this.onServerClosed(e)
@@ -208,6 +208,11 @@ class Controller {
 		this.board = board;
 		this.run = false;
 		this.isPlayer = false;
+		this.playerId = -1;
+		l.click( () => this.onKeyPress('l'));
+		r.click( () => this.onKeyPress('r'));
+		t.click( () => this.onKeyPress('t'));
+		d.click( () => this.onKeyPress('d'));
 	}
 
 	start() {
@@ -233,33 +238,58 @@ class Controller {
 		switch (op) {
 			case 0: // join
 			  this.isPlayer = view.getUint8(dataHead) == 1 ? true : false;
-				logger.i("join: is_player:" + this.isPlayer);
+			  this.playerId = view.getUint8(dataHead + 1);
+				logger.i("join: is_player:" + this.isPlayer + " id:" + this.playerId);
+				this.onPlayerStatusChanged();
 				break;
+
 			case 1: // fin
 				logger.i("disconnect");
 				this.conn.close();
 				break;
+
 			case 2: // board
-				let col = view.getUint8(dataHead);
-				let row = view.getUint8(dataHead + 1);
+				let score = view.getUint8(dataHead);
+				let playerNum = view.getUint8(dataHead+1);
+				let spectatorNum = view.getUint8(dataHead+2);
+				let col = view.getUint8(dataHead+3);
+				let row = view.getUint8(dataHead+4);
 				var newState = new Array(col);
-				var offset = dataHead + 2;
+				var offset = dataHead + 5;
 				for (var x = 0; x < newState.length; ++x) {
 					newState[x] = new Uint8Array(arrayBuffer, offset, row);
 					offset += row;
 				}
-				logger.i(`updated board state. col=${col}, row=${row}`);
+				//logger.i(`updated board state. col=${col}, row=${row}`);
 				this.board.setStates(newState, true);
+				$("#status").text("Score: " + score + "    Visitor: " + playerNum + "+" + spectatorNum);
 				break;
+
 			case 3: // game over
 				logger.i("game over!!");
 				this.conn.close();
+				this.onGameOver();
 				break;
+
 			default:
 				logger.e("unknown server data.");
 				logger.e(op);
 				break;
 		}
+	}
+
+	onPlayerStatusChanged() {
+		if (this.isPlayer) {
+			$("#description").css("background", B_COLOR_TO_COLOR(this.playerId + B_COLOR_MIN))
+			  .text("あなたはプレイヤー"+(this.playerId+1)+"です");
+		}else{
+			$("#description").text("あなたは観戦者です");
+		}
+	}
+
+	onGameOver() {
+			$("#description")
+			  .text("Game Over !!! リロードしてください");
 	}
 
 	onServerClosed(e) {
@@ -277,7 +307,11 @@ class Controller {
 
 
 $(() => {
-	let board = new Board(30, $('#board')[0]);
-	let app = new Controller(board);
+	let board = new Board(27, $('#board')[0]);
+	let l = $("#btn_left");
+	let r = $("#btn_right");
+	let t = $("#btn_rotate");
+	let d = $("#btn_bottom");
+	let app = new Controller(board, l,r,t,d);
 	app.start();
 })

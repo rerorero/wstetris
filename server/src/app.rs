@@ -109,18 +109,23 @@ impl App {
         let game_arc = self.game.clone();
 		thread::spawn(move || {
 			loop {
-				println!("thread tick");
-                // @todo remove
-				{ mgr.lock().unwrap().debug_session(); }
+				//println!("thread tick");
+
+				//{ mgr.lock().unwrap().debug_session(); }
 
 				let user_rx;
-				{ user_rx = mgr.lock().unwrap().pop_user_rx(); }
+                let mut session_num;
+				{
+                    let mut _mgr = mgr.lock().unwrap();
+                    user_rx = _mgr.pop_user_rx();
+                    session_num = _mgr.sessions.borrow().len();
+                }
 
                 {
                     let mut game = game_arc.lock().unwrap();
     				for (user, rx) in &user_rx {
-    					println!("user {:?}", user);
-    					println!("action {:?}", rx);
+    					//println!("user {:?}", user);
+    					//println!("action {:?}", rx);
 
                         match *rx {
                             UserRx::Closed => {
@@ -138,13 +143,13 @@ impl App {
                     let (updated, game_over) = game.on_frame();
                     if game_over {
                         let _mgr = mgr.lock().unwrap();
-                        let board_cmd = game.get_board_state();
+                        let board_cmd = game.get_board_state(session_num);
     			        _mgr.broadcast(&board_cmd);
     			        _mgr.broadcast(&ServerCommand::GameOver);
                         game.new_game();
 
                     } else if (updated) {
-                        let board_cmd = game.get_board_state();
+                        let board_cmd = game.get_board_state(session_num);
     			        mgr.lock().unwrap().broadcast(&board_cmd);
                     }
                 }
@@ -160,11 +165,11 @@ impl App {
             let session = user_session.lock().unwrap();
             let id = session.user.id;
             let is_player = self.game.lock().unwrap().attempt_to_add_player(id);
-            session.send_to(&ServerCommand::Join {is_player: is_player});
+            session.send_to(&ServerCommand::Join {is_player: is_player, player_id: id as u8});
         }
 		return user_session;
     }
 }
 
-const MAX_USER: i32 = 7;
-const TICK_INTERVAL: u32 = 100;
+const MAX_USER: i32 = 100;
+const TICK_INTERVAL: u32 = 50;

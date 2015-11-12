@@ -28,10 +28,12 @@ pub struct Game {
 	pub board: Board,
 	players: Vec<Player>,
 	tick: u32,
-	fall_velocity: u32
+	fall_velocity: u32,
+	score: u8
 }
 
-const FALL_VELOCITY_INIT: u32 = 5;
+const FALL_VELOCITY_INIT: u32 = 50;
+const UP_INT: u32 = 2000;
 
 impl Game {
 	pub fn new() -> Game {
@@ -39,7 +41,8 @@ impl Game {
 			board: Board::new(),
 			players: Vec::new(),
 			tick: 0,
-			fall_velocity: FALL_VELOCITY_INIT
+			fall_velocity: FALL_VELOCITY_INIT,
+			score: 0
 		}
 	}
 
@@ -49,19 +52,31 @@ impl Game {
 
 	pub fn new_game(&mut self) {
 		self.tick = 0;
+		self.score = 0;
 		self.fall_velocity = FALL_VELOCITY_INIT;
 		self.board.empty();
 	}
 
-	pub fn get_board_state(&self) -> ServerCommand {
+	pub fn get_board_state(&self, session_num: usize) -> ServerCommand {
 		let mut minos = Vec::new();
+		let mut players = 0;
 		for player in &self.players {
 			 match player.mino {
 			 	Some(ref m) => minos.push(m),
 			 	None => {}
 			 }
+			 players += 1;
 		}
-		return self.board.to_server_cmd(&minos);
+
+		let state = self.board.to_server_cmd(&minos);
+		let spector = if session_num < players {
+			players - session_num
+		} else {
+			0
+		};
+		return ServerCommand::Board {
+			state: state, score: self.score, player: players as u8, spectator: spector as u8
+		};
 	}
 
 	pub fn on_key_press(&mut self, user_id: i32, key: Key) {
@@ -99,6 +114,13 @@ impl Game {
 			return (false, false);
 		}
 
+		if (self.tick % UP_INT) == 0 {
+			// だんだん早く
+			if self.fall_velocity > 5 {
+				self.fall_velocity -= 1;
+			}
+		}
+
 		// clear line?
 		let cleared = self.clear_lines();
 
@@ -111,7 +133,7 @@ impl Game {
 		// will appear?
 		let (appeared, game_over) = self.appear();
 
-		println!("on_frame() c: {}, f:{}, m:{}, a:{}, game_over={}", cleared, fallen, moved, appeared, game_over);
+		//println!("on_frame() c: {}, f:{}, m:{}, a:{}, game_over={}", cleared, fallen, moved, appeared, game_over);
 		return (cleared || fallen || moved || appeared, game_over);
 	}
 
@@ -240,6 +262,11 @@ impl Game {
 	}
 
 	fn clear_lines(&mut self) -> bool {
-		return self.board.clear_lines() > 0;
+		let cleared = self.board.clear_lines();
+		if cleared > 0 {
+			self.score += cleared;
+			return true;
+		}
+		return false;
 	}
 }

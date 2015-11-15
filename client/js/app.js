@@ -262,7 +262,7 @@ class Controller {
 				}
 				//logger.i(`updated board state. col=${col}, row=${row}`);
 				this.board.setStates(newState, true);
-				$("#status").text("Score: " + score + "    Visitor: " + playerNum + "+" + spectatorNum);
+				$("#status").text("[スコア:" + score + "][プレイヤー:" + playerNum + "][観戦者:" + spectatorNum + "]");
 				break;
 
 			case 3: // game over
@@ -288,7 +288,7 @@ class Controller {
 	}
 
 	onGameOver() {
-			$("#description")
+			$("#description").css("background", "yellow")
 			  .text("Game Over !!! リロードしてください");
 	}
 
@@ -301,7 +301,9 @@ class Controller {
 	}
 
 	onKeyPress(key) {
-		this.conn.send(genKeyPressData(key));
+		if (this.isPlayer) {
+			this.conn.send(genKeyPressData(key));
+		}
 	}
 }
 

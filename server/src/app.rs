@@ -73,13 +73,16 @@ impl SessionMgr {
     }
 
     pub fn broadcast(&self, cmd: &ServerCommand) {
-        let sess = self.sessions.borrow();
         let mut failed = Vec::new();
-        for s in sess.iter() {
-            let u = s.lock().unwrap();
-			if u.send_to(cmd) == false {
-                failed.push(u.user.id);
+        {
+           let sess = self.sessions.borrow();
+            for s in sess.iter() {
+                let u = s.lock().unwrap();
+    			if u.send_to(cmd) == false {
+                    failed.push(u.user.id);
+                }
             }
+
         }
         for id in failed {
             self.remove_session(id);

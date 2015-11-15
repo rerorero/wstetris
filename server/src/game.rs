@@ -89,7 +89,7 @@ impl Game {
 	}
 
 	pub fn attempt_to_add_player(&mut self, id: i32) -> bool {
-		if self.players.len() < MAX_PLAYER {
+		if id < MAX_PLAYER as i32 {
 			self.players.push(Player::new(id));
 			return true;
 		} else {

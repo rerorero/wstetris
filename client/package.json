@@ -9,7 +9,7 @@
     "gulp": "^3.8.11",
     "vinyl-source-stream": "^1.1.0",
     "gulp-webserver": "^0.9.1",
-    "jquery": "~2.1.4"
+    "jquery": "~3.4.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

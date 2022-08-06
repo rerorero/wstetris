@@ -4,6 +4,6 @@ version = "0.1.0"
 authors = ["rerorero <nato9598@hotmail.co.jp>"]
 
 [dependencies]
-websocket = "~0.12.2"
+websocket = "~0.26.5"
 rand = "0.3"
 rustc-serialize = "0.3"
